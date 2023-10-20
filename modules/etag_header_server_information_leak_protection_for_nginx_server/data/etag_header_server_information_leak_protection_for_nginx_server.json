@@ -1,0 +1,114 @@
+{
+  "name": "etag_header_server_information_leak_protection_for_nginx_server",
+  "description": "This incident type involves protecting an Nginx server from Server Information Leak through the use of ETag header. This is done to prevent sensitive server information from being disclosed to unauthorized parties. The ETag header allows for the identification of resources that have changed. By protecting the ETag header, the server can prevent attackers from gaining access to sensitive information that could potentially be used to compromise the server or its resources.",
+  "params": [
+    {
+      "name": "NGINX_ACCESS_LOG_FILE",
+      "value": ""
+    },
+    {
+      "name": "NGINX_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "NGINX_ERROR_LOG_FILE",
+      "value": ""
+    },
+    {
+      "name": "NGINX_SERVER_URL",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## ETag Header Server Information Leak Protection for Nginx Server.\nThis incident type involves protecting an Nginx server from Server Information Leak through the use of ETag header. This is done to prevent sensitive server information from being disclosed to unauthorized parties. The ETag header allows for the identification of resources that have changed. By protecting the ETag header, the server can prevent attackers from gaining access to sensitive information that could potentially be used to compromise the server or its resources."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the Nginx server is running."
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status nginx`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Nginx configuration file for the Etag header."
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cat ${NGINX_CONFIG_FILE} | grep etag`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Nginx access logs for signs of Etag header leaks."
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cat ${NGINX_ACCESS_LOG_FILE} | grep -i etag`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Nginx error logs for any related errors."
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cat ${NGINX_ERROR_LOG_FILE} | grep -i etag`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Use curl to check if the server is leaking Etag header information."
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -I ${NGINX_SERVER_URL}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Disable ETag header in the Nginx server configuration file to prevent its disclosure."
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_stop_edit_start_nginx($NGINX_CONFIG_FILE)"
+    }
+  ]
+}
